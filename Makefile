@@ -1,8 +1,8 @@
 exec:
-	gcc -o hello hello.c
-	./hello
+	gcc -o main main.c
+	./main
 
 clean:
-	rm -f hello
+	rm -f main
 
 .PHONY: exec clean
