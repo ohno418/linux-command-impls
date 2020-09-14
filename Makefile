@@ -1,5 +1,5 @@
 main: main.c
-	gcc -o main main.c
+	gcc -Wall -o main main.c
 
 clean:
 	rm -f main
