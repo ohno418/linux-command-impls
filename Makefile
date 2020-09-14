@@ -1,7 +1,2 @@
-main: main.c
-	gcc -Wall -o main main.c
-
-clean:
-	rm -f main
-
-.PHONY: clean
+cat: cat.c
+	gcc -Wall -o cat cat.c
