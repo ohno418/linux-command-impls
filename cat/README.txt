@@ -1,1 +1,1 @@
-A re-implementation of cat command.
+A implementation of a cat command with ststem calls only.

@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+gcc -Wall -o cat2 cat2.c
+
+diff <(./cat2 < cat2.c) cat2.c
+diff <(./cat2 < cat2) cat2
+diff <(./cat2 cat2.c) cat2.c
+diff <(./cat2 cat2) cat2
+
+echo OK
