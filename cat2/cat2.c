@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <stdlib.h>
 
-void do_cat(FILE *fd) {
+void do_cat(FILE *f) {
     int c;
-    while((c = fgetc(fd)) != EOF) {
+    while((c = fgetc(f)) != EOF) {
         if (fputc(c, stdout) == EOF) {
             exit(1);
             perror("fputc");
@@ -13,14 +13,14 @@ void do_cat(FILE *fd) {
 }
 
 void do_cat_with_path(char *path) {
-    FILE *fd;
-    if ((fd = fopen(path, "r")) == NULL) {
+    FILE *f;
+    if ((f = fopen(path, "r")) == NULL) {
         perror("fopen");
         exit(1);
     }
 
-    do_cat(fd);
-    fclose(fd);
+    do_cat(f);
+    fclose(f);
 }
 
 int main(int argc, char **argv) {
