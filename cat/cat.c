@@ -5,20 +5,29 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+void do_cat(int fd) {
+    char buf[4096];
+    ssize_t nread;
+    while ((nread = read(fd, buf, sizeof(buf))) > 0) {
+        write(1, buf, nread);
+    }
+}
+
 int main(int argc, char **argv) {
-    int fd = STDIN_FILENO;
-    if (argc > 1) {
-        fd = open(argv[1], O_RDONLY);
-        if (fd == -1) {
+    // With no arg
+    if (argc == 1) {
+        do_cat(STDIN_FILENO);
+        exit(0);
+    }
+
+    // With args
+    int fd;
+    for (int i = 1; i < argc; i++) {
+        if ((fd= open(argv[i], O_RDONLY)) == -1) {
             perror("open");
             exit(1);
         }
+        do_cat(fd);
     }
-
-    char buf[4096];
-    ssize_t nread;
-    while ((nread = read(fd, buf, sizeof(buf))) > 0)
-        write(1, buf, nread);
-
-    return 0;
+    exit(0);
 }

@@ -3,8 +3,10 @@ set -e
 gcc -o cat cat.c
 
 diff <(./cat < cat.c) cat.c
+diff <(./cat < cat) cat
 diff <(./cat cat.c) cat.c
 diff <(./cat cat) cat
-diff <(./cat < cat) cat
+diff <(./cat cat cat.c) <(cat cat cat.c)
+diff <(./cat cat cat.c cat) <(cat cat cat.c cat)
 
 echo OK
