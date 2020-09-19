@@ -12,25 +12,23 @@ void do_cat(FILE *f) {
     }
 }
 
-void do_cat_with_path(char *path) {
-    FILE *f;
-    if ((f = fopen(path, "r")) == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-
-    do_cat(f);
-    fclose(f);
-}
-
 int main(int argc, char **argv) {
+    // With no arg
     if (argc == 1) {
         do_cat(stdin);
-    } else {
-        for (int i = 1; i < argc; i++) {
-            do_cat_with_path(argv[i]);
-        }
+        exit(0);
     }
 
+    // With args
+    FILE *f;
+    for (int i = 1; i < argc; i++) {
+        if ((f = fopen(argv[i], "r")) == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+
+        do_cat(f);
+        fclose(f);
+    }
     exit(0);
 }
