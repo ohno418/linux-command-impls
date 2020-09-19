@@ -8,5 +8,6 @@ diff <(./cat2 cat2.c) cat2.c
 diff <(./cat2 cat2) cat2
 diff <(./cat2 cat2.c cat2.c) <(cat cat2.c cat2.c)
 diff <(./cat2 cat2.c cat2) <(cat cat2.c cat2)
+diff <(./cat2 cat2.c cat2 cat2.c) <(cat cat2.c cat2 cat2.c)
 
 echo OK
