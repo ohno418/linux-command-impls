@@ -11,11 +11,12 @@ int main(int argc, char **argv) {
 
     int c;
     while ((c = getc(stdin)) != EOF) {
-        putchar(c);
+        putc(c, stdout);
         if (c == '\n') {
             nlines--;
             if (nlines == 0) break;
         }
     }
+
     exit(0);
 }
