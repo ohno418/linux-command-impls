@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+gcc -o head head.c
+diff <(cat head.c | ./head 1) <(cat head.c | head -n 1)
+diff <(cat head.c | ./head 5) <(cat head.c | head -n 5)
+diff <(cat head.c | ./head 1000) <(cat head.c | head -n 1000)
+echo OK
