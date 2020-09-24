@@ -2,15 +2,24 @@
 #include <stdlib.h>
 
 int main(int argc, char **argv) {
-    if (argc != 2) {
-        fprintf(stderr, "one number expected\n");
+    if (argc < 2) {
+        fprintf(stderr, "at least one argument expected\n");
         exit(1);
     }
 
-    int nlines = atoi(argv[1]);
+    FILE *f;
+    if (argc == 3) {
+        if ((f = fopen(argv[2], "r")) == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+    } else {
+        f = stdin;
+    }
 
+    int nlines = atoi(argv[1]);
     int c;
-    while ((c = getc(stdin)) != EOF) {
+    while ((c = getc(f)) != EOF) {
         putc(c, stdout);
         if (c == '\n') {
             nlines--;
