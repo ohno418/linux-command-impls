@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     } else {
         FILE *f;
         if ((f = fopen(argv[2], "r")) == NULL) {
-            perror("fopen");
+            perror(argv[2]);
             exit(1);
         }
         do_grep(&reg, f);
