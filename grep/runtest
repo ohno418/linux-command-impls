@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+gcc -Wall -o grep grep.c
+
+diff <(cat ./grep.c | ./grep arg) <(cat ./grep.c | grep arg)
+diff <(./grep arg grep.c) <(grep arg grep.c)
+
+diff <(cat ./grep.c | ./grep r.*p) <(cat ./grep.c | grep r.*p)
+diff <(./grep r.*p grep.c) <(grep r.*p grep.c)
+
+diff <(cat ./grep.c | ./grep 'r.*p') <(cat ./grep.c | grep 'r.*p')
+diff <(./grep 'r.*p' grep.c) <(grep 'r.*p' grep.c)
+
+echo OK
