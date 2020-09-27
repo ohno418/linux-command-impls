@@ -15,4 +15,7 @@ diff <(./grep 'r.*p' grep.c) <(grep 'r.*p' grep.c)
 diff <(cat ./grep.c | ./grep fffff) <(cat ./grep.c | grep fffff)
 diff <(./grep fffff grep.c) <(grep fffff grep.c)
 
+# -i: ignore case option
+diff <(echo thisisUppErcase | ./grep -i upper) <(echo thisisUppErcase | grep -i upper)
+
 echo OK
