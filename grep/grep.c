@@ -5,8 +5,10 @@
 
 static void do_grep(regex_t *preg, FILE *src, int opt_invertmatch) {
     char buf[4096];
+    int matched;
     while (fgets(buf, sizeof(buf), src) != NULL) {
-        if ((regexec(preg, buf, 0, NULL, 0)) == 0) {
+        matched = (regexec(preg, buf, 0, NULL, 0) == 0);
+        if (matched) {
             if (!opt_invertmatch) fputs(buf, stdout);
         } else {
             if (opt_invertmatch) fputs(buf, stdout);
