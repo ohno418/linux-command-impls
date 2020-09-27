@@ -3,24 +3,30 @@
 #include <regex.h>
 #include <unistd.h>
 
-static void do_grep(regex_t *preg, FILE *src) {
+static void do_grep(regex_t *preg, FILE *src, int opt_invertmatch) {
     char buf[4096];
     while (fgets(buf, sizeof(buf), src) != NULL) {
         if ((regexec(preg, buf, 0, NULL, 0)) == 0) {
-            fputs(buf, stdout);
+            if (!opt_invertmatch) fputs(buf, stdout);
+        } else {
+            if (opt_invertmatch) fputs(buf, stdout);
         }
     }
 }
 
 int main(int argc, char **argv) {
-    // ignore case option (-i)
-    int isIgnoreCase = 0;
+    // options
+    int opt_ignorecase = 0;
+    int opt_invertmatch = 0;
 
     int opt;
-    while ((opt = getopt(argc, argv, "i")) != -1) {
+    while ((opt = getopt(argc, argv, "iv")) != -1) {
         switch (opt) {
         case 'i':
-            isIgnoreCase = 1;
+            opt_ignorecase = 1;
+            break;
+        case 'v':
+            opt_invertmatch = 1;
             break;
         case '?':
         default:
@@ -36,7 +42,7 @@ int main(int argc, char **argv) {
     }
 
     int regmode = REG_EXTENDED;
-    if (isIgnoreCase) regmode = REG_ICASE;
+    if (opt_ignorecase) regmode = REG_ICASE;
 
     regex_t reg;
     if (regcomp(&reg, argv[0], regmode) != 0) {
@@ -45,14 +51,14 @@ int main(int argc, char **argv) {
     }
 
     if (argc == 1) {
-        do_grep(&reg, stdin);
+        do_grep(&reg, stdin, opt_invertmatch);
     } else {
         FILE *f;
         if ((f = fopen(argv[1], "r")) == NULL) {
             perror(argv[1]);
             exit(1);
         }
-        do_grep(&reg, f);
+        do_grep(&reg, f, opt_invertmatch);
         fclose(f);
     }
 

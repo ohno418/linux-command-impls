@@ -18,4 +18,7 @@ diff <(./grep fffff grep.c) <(grep fffff grep.c)
 # -i: ignore case option
 diff <(echo thisisUppErcase | ./grep -i upper) <(echo thisisUppErcase | grep -i upper)
 
+# -v: invert match option
+diff <(./grep -v arg grep.c) <(grep -v arg grep.c)
+
 echo OK
