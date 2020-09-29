@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv) {
     if (argc < 2) {
-        fprintf(stderr, "expected a argument\n");
+        fprintf(stderr, "expected arguments\n");
         exit(1);
     }
 
