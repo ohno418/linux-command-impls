@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+gcc -o ls ls.c
+
+# options
+#   -1: Display vertically.
+#   -a: Display all file names.
+#   -U: Not sort.
+diff <(./ls .) <(ls -1aU .)
+
+echo OK
