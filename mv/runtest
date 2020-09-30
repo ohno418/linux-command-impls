@@ -1,0 +1,12 @@
+#!/bin/bash
+gcc -o mv mv.c
+
+touch old
+./mv old new
+
+test -f new || exit $?
+! test -f old || exit $?
+
+rm new
+
+echo OK

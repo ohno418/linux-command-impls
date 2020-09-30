@@ -10,3 +10,4 @@ rmdir/rmdir
 ln/ln
 symlink/symlink
 rm/rm
+mv/mv
