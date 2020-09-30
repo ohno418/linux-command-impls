@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+gcc -o rm rm.c
+
+touch for_test
+./rm for_test
+! test -f for_test
+
+touch for_test1 for_test2
+./rm for_test1 for_test2
+! test -f for_test1
+! test -f for_test2
+
+echo OK
