@@ -8,3 +8,4 @@ ls/ls
 mkdir/mkdir
 rmdir/rmdir
 ln/ln
+symlink/symlink
