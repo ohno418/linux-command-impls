@@ -9,3 +9,4 @@ mkdir/mkdir
 rmdir/rmdir
 ln/ln
 symlink/symlink
+rm/rm
