@@ -5,11 +5,6 @@
 #include <ctype.h>
 #include <string.h>
 
-struct cmd {
-    int argc;
-    char **argv;
-};
-
 static char *read_arg_string(char *p) {
     char *endp = p;
     while (*endp != '\0' && *endp != '\n' && !isspace(*endp))
@@ -25,24 +20,19 @@ static char *read_arg_string(char *p) {
     return str;
 }
 
-static struct cmd *parse_cmd(char *str) {
-    struct cmd *cmd = calloc(1, sizeof(struct cmd));
-    cmd->argc = 0;
-    cmd->argv = calloc(1, sizeof(char*) * 16);
-
+static char **parse_cmd(char *str) {
+    char **argv = calloc(1, sizeof(char*) * 16);
     char *p = str;
-    while (*p) {
+    for (int i = 0; *p; i++) {
         if (isspace(*p)) {
             p++;
             continue;
         }
 
-        cmd->argv[cmd->argc] = read_arg_string(p);
-        p += strlen(cmd->argv[cmd->argc]);
-        cmd->argc++;
+        argv[i] = read_arg_string(p);
+        p += strlen(argv[i]);
     }
-
-    return cmd;
+    return argv;
 }
 
 static void cmd_loop(void) {
@@ -59,10 +49,10 @@ static void cmd_loop(void) {
             exit(1);
         } else if (pid == 0) {
             // child process
-            struct cmd *cmd = parse_cmd(buf);
-            execv(cmd->argv[0], cmd->argv);
+            char **cmd_argv = parse_cmd(buf);
+            execv(cmd_argv[0], cmd_argv);
             // error
-            perror(cmd->argv[0]);
+            perror(cmd_argv[0]);
             exit(1);
         } else {
             // parent process
