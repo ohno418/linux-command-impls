@@ -4,7 +4,13 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
+#include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/errno.h>
+
+#define SERVER_NAME "oHTTP"
+#define SERVER_VERSION "1.0"
 
 struct HTTPHeaderField {
     char *name;
@@ -202,7 +208,6 @@ get_fileinfo(char *docroot, char *urlpath)
     info->ok = 0;
 
     struct stat st;
-
     if (lstat(info->path, &st) < 0) return info;
     if (!S_ISREG(st.st_mode)) return info;
     info->ok = 1;
@@ -219,9 +224,52 @@ free_fileinfo(struct FileInfo *info)
 }
 
 static void
+output_common_header_fields(struct HTTPRequest *req,
+                            FILE *out, char *status)
+{
+    // Make date string.
+    char date[1024];
+    time_t t = time(NULL);
+    struct tm *tm = gmtime(&t);
+    strftime(date, sizeof(date), "%a, %d %b %Y %H:%M:%S GMT", tm);
+
+    fprintf(out, "HTTP/1.%d %s\r\n", req->protocol_minor_version, status);
+    fprintf(out, "Date: %s\r\n", date);
+    fprintf(out, "Server: %s/%s\r\n", SERVER_NAME, SERVER_VERSION);
+    fprintf(out, "Connection: close\r\n");
+}
+
+static void
 not_found(struct HTTPRequest *req, FILE *out)
 {
-    // TODO: https://github.com/aamine/stdlinux2-source/blob/master/httpd.c
+    output_common_header_fields(req, out, "404 Not Found");
+    fprintf(out, "Content-Type: text/plain\r\n");
+    fprintf(out, "\r\n");
+    fprintf(out, "File not found.\r\n");
+}
+
+static void
+method_not_allowed(struct HTTPRequest *req, FILE *out)
+{
+    output_common_header_fields(req, out, "405 Method Not Allowed");
+    fprintf(out, "Content-Type: text/plain\r\n");
+    fprintf(out, "\r\n");
+    fprintf(out, "The request method %s is not allowed.\r\n", req->method);
+}
+
+static void
+not_implemented(struct HTTPRequest *req, FILE *out)
+{
+    output_common_header_fields(req, out, "501 Not Implemented");
+    fprintf(out, "Content-Type: text/plain\r\n");
+    fprintf(out, "\r\n");
+    fprintf(out, "The request method %s is not implemented.\r\n", req->method);
+}
+
+static char*
+guess_content_type()
+{
+    return "text/plain";
 }
 
 static void
@@ -234,19 +282,34 @@ do_file_response(struct HTTPRequest *req, FILE *out, char *docroot)
         return;
     }
 
-    // TODO
-}
+    output_common_header_fields(req, out, "200 OK");
+    fprintf(out, "Content-Length: %ld\r\n", info->size);
+    fprintf(out, "Content-Type: %s\r\n", guess_content_type());
+    fprintf(out, "\r\n");
 
-static void
-method_not_allowed(struct HTTPRequest *req, FILE *out)
-{
-    // TODO
-}
+    int fd = open(info->path, O_RDONLY);
+    if (fd < 0)
+        log_exit("failed to open %s: %s", info->path, strerror(errno));
 
-static void
-not_implemented(struct HTTPRequest *req, FILE *out)
-{
-    // TODO
+    int n;
+    char buf[1024];
+    for (;;) {
+        n = read(fd, buf, sizeof(buf));
+        if (n < 0)
+            log_exit("failed to read %s: %s", info->path, strerror(errno));
+        if (n == 0)
+            break;
+
+        if (fwrite(buf, 1, n, out) < n)
+            log_exit("failed to write to socket: %s", strerror(errno));
+    }
+    close(fd);
+
+    // ref:
+    //   Why to use fflush()
+    //   https://pubs.opengroup.org/onlinepubs/007904975/functions/fflush.html
+    fflush(out);
+    free_fileinfo(info);
 }
 
 static void
@@ -283,7 +346,27 @@ main(int argc, char **argv)
 
 /* examples:
 
-GET /httpd/httpd.c HTTP/1.1
+gcc -Wall -o httpd httpd.c && ./httpd /app
+
+GET /cat/cat.c HTTP/1.1
+ACCEPT: text/html
+Host: i.loveruby.net
+
+---
+
+GET /httpd/notfound HTTP/1.1
+ACCEPT: text/html
+Host: i.loveruby.net
+
+---
+
+POST /httpd/httpd.c HTTP/1.1
+ACCEPT: text/html
+Host: i.loveruby.net
+
+---
+
+PUT /httpd/httpd.c HTTP/1.1
 ACCEPT: text/html
 Host: i.loveruby.net
 
