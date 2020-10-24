@@ -269,7 +269,7 @@ not_implemented(struct HTTPRequest *req, FILE *out)
 }
 
 static char*
-guess_content_type()
+guess_content_type(void)
 {
     return "text/plain";
 }
