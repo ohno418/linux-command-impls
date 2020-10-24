@@ -412,19 +412,52 @@ server_main(int server_fd, char *docroot)
     }
 }
 
+static void
+become_daemon(void)
+{
+    if (chdir("/") < 0)
+        log_exit("chdir(2) failed: %s", strerror(errno));
+
+    freopen("/dev/null", "r", stdin);
+    freopen("/dev/null", "w", stdout);
+    freopen("/dev/null", "w", stderr);
+
+    int pid = fork();
+    if (pid < 0) log_exit("fork(2) failed: %s", strerror(errno));
+    if (pid != 0) _exit(0); // Terminate parent process.
+    if (setsid() < 0) log_exit("setsid(2) failed: %s", strerror(errno));
+}
+
 int
 main(int argc, char **argv)
 {
-    if (argc != 2) {
+    int opt;
+    char *port = "80"; // default port
+    int is_daemon = 0;
+    while ((opt = getopt(argc, argv, "p:d")) != -1) {
+        switch (opt) {
+        case 'p':
+            port = optarg;
+            break;
+        case 'd':
+            is_daemon = 1;
+            break;
+        case '?':
+        default:
+            log_exit("unknown option");
+        }
+    }
+
+    if (optind != argc - 1) {
         fprintf(stderr, "Usage: %s <docroot>\n", argv[0]);
         exit(1);
     }
+    char *docroot = argv[optind];
 
     install_signal_handler();
-    // default port
-    char *port = "80";
     int server_fd = listen_socket(port);
-    server_main(server_fd, argv[1]);
+    if (is_daemon) become_daemon();
+    server_main(server_fd, docroot);
 
     exit(0);
 }
