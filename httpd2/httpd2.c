@@ -384,7 +384,6 @@ server_main(int server_fd, char *docroot)
         int pid = fork();
         if (pid < 0) exit(3);
         if (pid == 0) { // child process
-            printf("(debug) sock: %d\n", sock);
             FILE *inf = fdopen(sock, "r");
             FILE *outf = fdopen(sock, "w");
             service(inf, outf, docroot);
