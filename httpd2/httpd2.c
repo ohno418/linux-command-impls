@@ -69,7 +69,25 @@ trap_signal(int sig, void (*handler)(int))
     act.sa_handler = handler;
     sigemptyset(&act.sa_mask);
     act.sa_flags = SA_RESTART;
-    sigaction(sig, &act, NULL);
+    if (sigaction(sig, &act, NULL) < 0)
+        log_exit("sigaction() failed: %s", strerror(errno));
+}
+
+static void
+noop_handler(int sig)
+{
+    ;
+}
+
+static void
+detach_child(void)
+{
+    struct sigaction act;
+    act.sa_handler = noop_handler;
+    sigemptyset(&act.sa_mask);
+    act.sa_flags = SA_RESTART | SA_NOCLDWAIT;
+    if (sigaction(SIGCHLD, &act, NULL) < 0)
+        log_exit("sigaction() failed: %s", strerror(errno));
 }
 
 // handle socket errors
@@ -77,6 +95,7 @@ static void
 install_signal_handler(void)
 {
     trap_signal(SIGPIPE, signal_exit);
+    detach_child();
 }
 
 static struct HTTPRequest *
