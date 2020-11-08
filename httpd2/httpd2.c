@@ -7,6 +7,7 @@
 #include <time.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <syslog.h>
 #include <sys/errno.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -41,8 +42,7 @@ log_exit(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    fprintf(stderr, "\n");
+    vsyslog(LOG_ERR, fmt, ap);
     va_end(ap);
     exit(1);
 }
