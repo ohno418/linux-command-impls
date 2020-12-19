@@ -1,4 +1,5 @@
 *.out
+tmp*
 
 cat/cat
 cat2/cat2
